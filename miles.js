@@ -1,9 +1,10 @@
-let timer,time=0,distance=0,money=80;
+let timer,time=0,distance=0,money=80,saveTime=0;
 let running=false;
 let watchID , startTime;
 let prevLat = null , prevLon = null;
 let nextDistanceStop = 0.1;
 let nextTimeStep = 120;
+let path = [];
 
 function toRad(deg){
     return deg * Math.PI/180; 
@@ -25,7 +26,7 @@ function updateDisplay(){
     let timeText = "0:00";
     if(startTime){
     const now = new Date();
-    const diff = (now - startTime)/1000;
+    const diff = (now - startTime)/1000 +saveTime;
     const minute = Math.floor(diff/60);
     const second = (diff % 60).toFixed(0);
     timeText = `${minute}:${second.padStart(2,0)}`;
@@ -43,7 +44,7 @@ function start(){
 
     timer = setInterval(() => {
        const now = new Date();
-       const diff = (now - startTime) / 1000;
+       const diff = (now - startTime) / 1000 +saveTime;
     
         if (diff >=nextTimeStep){
             money +=5;
@@ -58,6 +59,8 @@ if (navigator.geolocation) {
       (pos) => {
         const { latitude, longitude } = pos.coords;
 
+        // path.push({lat:latitude , lon:longitude});
+
         if (prevLat !== null && prevLon !== null) {
           const d = getDistanceFromLatLon(prevLat, prevLon, latitude, longitude);
           if (d > 0.005) { // 移動超過 3 公尺才算，過濾誤差
@@ -65,6 +68,9 @@ if (navigator.geolocation) {
             if (distance >= nextDistanceStep) {
               money += 5;
               nextDistanceStep += 0.1;
+
+              path.push({lat:latitude , lon:longitude});
+
             }
             updateDisplay();
           }
@@ -76,7 +82,7 @@ if (navigator.geolocation) {
       (err) => {
         console.error("GPS 錯誤：", err.message);
       },
-      { enableHighAccuracy: true, maximumAge: 10000, timeout: 10000 }
+      { enableHighAccuracy: true, maximumAge: 1000, timeout: 5000 }
     );
   } else {
     alert("你的裝置不支援 GPS");
@@ -84,13 +90,18 @@ if (navigator.geolocation) {
 
 
 function pause(){
+  if(!running) return;
     running = false;
     clearInterval(timer);
+
+    const now = new Date();
+    saveTime += (now-startTime)/1000;
     navigator.geolocation.clearWatch(watchID);
 }
 
 function reset(){
     pause();
+    saveTime = 0;
     time = 0;
     distance=0;
     money=80;
@@ -101,5 +112,28 @@ function reset(){
     startTime = null;
     updateDisplay();
 }
+
+function clearGPS(){
+  if(confirm("確定要清除先前GPS紀錄?")){
+    path = [];
+    pause();
+    time = 0;
+    distance=0;
+    money=80;
+    nextDistanceStep = 0.1;
+    nextTimeStep = 120;
+    prevLat = null;
+    prevLon = null;
+    startTime = null;
+    updateDisplay();
+    console.log("GPS紀錄已清除");
+  }
+}
+
+function appear(){
+  const lines = path.map(p =>`{"lat": ${p.lat}, "lon": ${p.lon}}`);
+  document.getElementById("output").textContent = `[\n ${lines.join(',\n  ')}\n]`;
+}
+
 
 updateDisplay();
