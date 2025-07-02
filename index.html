@@ -21,12 +21,26 @@
                 font-size: 20px;
                 padding: 10px 20px;
                 margin: 10px;
+                background-color:black;
+                color:#00ff00;
+                border: 2px solid white;
+                border-radius: 12px;
+                font-family: "Courier New", monospace;
+                text-shadow: 0 0 4px #00ff00;
+                box-shadow: 0 0 8px #00ff00;
+                cursor: pointer;
+                transition: 0.3s;
             }
+
+            button:hover {
+                background-color: white;
+                box-shadow: 0 0 16px #00ff00;
+}
         </style>
     </head>
     <body>
         <h1>車輛跳表器</h1>
-        <div class ="display">距離: <span id = "distance">0</span>公里</div>
+        <div class ="display">里程: <span id = "distance">0.0</span>公里</div>
         <div class ="display">時間: <span id = "time">0</span>分鐘</div>
         <div class ="display">金額: <span id = "money">80</span>元</div>
 
