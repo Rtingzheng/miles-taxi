@@ -22,13 +22,13 @@ function getDistanceFromLatLon(lat1,lon1,lat2,lon2){
 }
 
 function updateDisplay(){
-    let timeText = "0:00.0";
+    let timeText = "0:00";
     if(startTime){
     const now = new Date();
     const diff = (now - startTime)/1000;
     const minute = Math.floor(diff/60);
-    const second = (diff % 60).toFixed(1);
-    timeText = `${minute}:${second.padStart(4,0)}`;
+    const second = (diff % 60).toFixed(0);
+    timeText = `${minute}:${second.padStart(2,0)}`;
     }
 
     document.getElementById("time").textContent = timeText;
