@@ -1,12 +1,12 @@
 let timer,time=0,distance=0,money=80;
 let running=false;
-let watchID;
+let watchID , startTime;
 let prevLat = null , prevLon = null;
 let nextDistanceStop = 0.1;
-let nextTimeStep = 2;
+let nextTimeStep = 120;
 
 function toRad(deg){
-    return deg * Math.PI/180;
+    return deg * Math.PI/180; 
 }
 
 function getDistanceFromLatLon(lat1,lon1,lat2,lon2){
@@ -22,22 +22,35 @@ function getDistanceFromLatLon(lat1,lon1,lat2,lon2){
 }
 
 function updateDisplay(){
-    document.getElementById("time").textContent = time.toFixed(1);
-    document.getElementById("distance").textContent = distance.toFixed(2);
+    let timeText = "0:00.0";
+    if(startTime){
+    const now = new Date();
+    const diff = (now - startTime)/1000;
+    const minute = Math.floor(diff/60);
+    const second = (diff % 60).toFixed(1);
+    timeText = `${minute}:${second.padStart(4,0)}`;
+    }
+
+    document.getElementById("time").textContent = timeText;
+    document.getElementById("distance").textContent = distance.toFixed(1);
     document.getElementById("money").textContent = money;
 }
 
-function start(){
+function start(){ 
     if (running) return;
     running = true;
-    timer = setInterval(()=>{
-        time+=1;
-        if (time >=nextTimeStep){
+    startTime = new Date();
+
+    timer = setInterval(() => {
+       const now = new Date();
+       const diff = (now - startTime) / 1000;
+    
+        if (diff >=nextTimeStep){
             money +=5;
-            nextTimeStep +=2;
+            nextTimeStep +=120;
         }
         updateDisplay();
-    },60000);
+    },100);
 }
 
 if (navigator.geolocation) {
@@ -47,7 +60,7 @@ if (navigator.geolocation) {
 
         if (prevLat !== null && prevLon !== null) {
           const d = getDistanceFromLatLon(prevLat, prevLon, latitude, longitude);
-          if (d > 0.003) { // 移動超過 3 公尺才算，過濾誤差
+          if (d > 0.005) { // 移動超過 3 公尺才算，過濾誤差
             distance += d;
             if (distance >= nextDistanceStep) {
               money += 5;
@@ -78,13 +91,14 @@ function pause(){
 
 function reset(){
     pause();
-    time=0;
+    time = 0;
     distance=0;
     money=80;
     nextDistanceStep = 0.1;
-    nextTimeStep = 2;
+    nextTimeStep = 120;
     prevLat = null;
     prevLon = null;
+    startTime = null;
     updateDisplay();
 }
 
