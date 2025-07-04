@@ -2,7 +2,7 @@ let timer,time=0,distance=0,money=80,saveTime=0;
 let running=false;
 let watchID , startTime;
 let prevLat = null , prevLon = null;
-let nextDistanceStop = 0.1;
+let nextDistanceStop = 0.01;
 let nextTimeStep = 120;
 let path = [];
 
@@ -67,7 +67,7 @@ if (navigator.geolocation) {
             distance += d;
             if (distance >= nextDistanceStep) {
               money += 5;
-              nextDistanceStep += 0.1;
+              nextDistanceStep += 0.01;
 
               path.push({lat:latitude , lon:longitude});
 
